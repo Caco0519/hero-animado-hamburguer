@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hambúrguer Premium - Explosão de Sabor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0B0B0B;
+            --highlight: #FFC107;
+            --cta-color: #FF5200;
+            --text-main: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.85);
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            color: var(--text-main);
+            scroll-behavior: smooth;
+        }
+
+        /* Dramatic Background Gradient (Behind the Canvas) */
+        .background-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 75% 50%, #4a0d12 0%, #150507 40%, var(--bg-color) 80%);
+            z-index: -2;
+        }
+
+        /* Header Styling */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 6%;
+            box-sizing: border-box;
+            background: rgba(11, 11, 11, 0.15);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+
+        nav {
+            display: flex;
+            gap: 40px;
+        }
+
+        nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: color 0.3s, opacity 0.3s;
+            opacity: 0.8;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        nav a:hover {
+            color: var(--highlight);
+            opacity: 1;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+            transition: opacity 0.3s, color 0.3s;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        .icon-btn:hover {
+            opacity: 1;
+            color: var(--highlight);
+        }
+
+        .icon-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
+
+        .signup-btn {
+            background: linear-gradient(135deg, #FF7A00 0%, var(--cta-color) 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 82, 0, 0.2);
+        }
+
+        .signup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 82, 0, 0.4);
+        }
+
+        /* Hero Section - Full Background Layout */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 6%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: floatBG 15s ease-in-out infinite;
+            transform-origin: center center;
+        }
+
+        @keyframes floatBG {
+            0% {
+                transform: scale(1.03) translate(0, 0);
+            }
+
+            50% {
+                transform: scale(1.03) translate(-8px, 8px);
+            }
+
+            100% {
+                transform: scale(1.03) translate(0, 0);
+            }
+        }
+
+        #burgerCanvas {
+            width: 100%;
+            height: 100%;
+            /* Use contain to avoid aggressive cropping on the top/bottom */
+            object-fit: contain;
+            /* Shifts the burger perfectly slightly to the right */
+            object-position: 75% 50%;
+            mix-blend-mode: screen;
+            opacity: 0.95;
+            /* Small scale up if needed to fill gaps without extreme cropping */
+            transform: scale(1.1);
+        }
+
+        /* Background Cinematic Overlays */
+        .overlay-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(11, 11, 11, 0.96) 0%, rgba(11, 11, 11, 0.75) 45%, rgba(11, 11, 11, 0) 80%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .overlay-blur {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 60%;
+            height: 100%;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            mask-image: linear-gradient(to right, black 35%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, black 35%, transparent 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .overlay-vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 65% -10%, rgba(255, 193, 7, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, transparent 50%, rgba(0, 0, 0, 0.85) 150%);
+            pointer-events: none;
+            mix-blend-mode: overlay;
+            z-index: 2;
+        }
+
+        /* Hero Text Content Container */
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin-top: 60px;
+            /* Accounts for header breathing room */
+            animation: fadeInUP 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        @keyframes fadeInUP {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 45px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .badge::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--highlight);
+            border-radius: 50%;
+            margin-right: 12px;
+            box-shadow: 0 0 12px var(--highlight);
+        }
+
+        .hero-title {
+            font-size: 6.5rem;
+            font-weight: 800;
+            line-height: 1.05;
+            margin: 0 0 45px 0;
+            letter-spacing: -2.5px;
+            text-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
+        }
+
+        .highlight {
+            color: var(--highlight);
+            display: inline-block;
+            text-shadow: 0 0 50px rgba(255, 193, 7, 0.25);
+        }
+
+        .hero-desc {
+            font-size: 1.35rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin-bottom: 60px;
+            max-width: 580px;
+            font-weight: 400;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+        }
+
+        .cta-btn {
+            background: linear-gradient(135deg, #FFD700 0%, #FF9800 100%);
+            color: #000;
+            border: none;
+            padding: 20px 52px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(255, 152, 0, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: fit-content;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 45px rgba(255, 152, 0, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .cta-btn svg {
+            width: 22px;
+            height: 22px;
+            transition: transform 0.3s;
+        }
+
+        .cta-btn:hover svg {
+            transform: translateX(4px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .hero-title {
+                font-size: 5.5rem;
+            }
+
+            .overlay-gradient {
+                background: linear-gradient(to right, rgba(11, 11, 11, 0.96) 0%, rgba(11, 11, 11, 0.8) 50%, rgba(11, 11, 11, 0) 85%);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .hero-title {
+                font-size: 4.5rem;
+                letter-spacing: -1.5px;
+            }
+
+            .overlay-blur {
+                width: 75%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 20px 5%;
+            }
+
+            nav {
+                display: none;
+            }
+
+            .hero {
+                align-items: flex-end;
+                /* Push content to bottom for better burger visibility */
+                padding-bottom: 80px;
+                padding-top: 100px;
+                /* Leave space behind transparent header */
+                /* On mobile, sometimes 100vh forces too much crop, let's keep it steady */
+                min-height: 100svh;
+            }
+
+            .hero-content {
+                margin-top: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .hero-title {
+                font-size: 4.2rem;
+                line-height: 1.1;
+            }
+
+            .hero-desc {
+                font-size: 1.15rem;
+                margin-bottom: 40px;
+                text-shadow: 0 4px 15px rgba(0, 0, 0, 1);
+            }
+
+            .badge {
+                justify-content: center;
+                margin-bottom: 30px;
+            }
+
+            #burgerCanvas {
+                /* Shift object center for mobile keeping burger slightly up */
+                object-position: 50% 30%;
+                object-fit: contain;
+                transform: scale(1.3);
+            }
+
+            .overlay-gradient {
+                background: linear-gradient(to bottom, rgba(11, 11, 11, 0) 0%, rgba(11, 11, 11, 0.85) 55%, rgba(11, 11, 11, 0.98) 100%);
+            }
+
+            .overlay-blur {
+                /* Change blur mask orientation to bottom for mobile */
+                width: 100%;
+                height: 60%;
+                top: 40%;
+                mask-image: linear-gradient(to bottom, transparent 0%, black 50%);
+                -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 50%);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* About Section */
+        .about-section {
+            position: relative;
+            padding: 120px 6%;
+            background-color: var(--bg-color);
+            z-index: 10;
+        }
+
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .about-image-wrapper {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        .about-image {
+            width: 100%;
+            display: block;
+            border-radius: 20px;
+            object-fit: cover;
+            transform: scale(1.05);
+            transition: transform 0.5s ease;
+        }
+
+        .about-image-wrapper:hover .about-image {
+            transform: scale(1.1);
+        }
+
+        .about-image-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 30%, rgba(11, 11, 11, 0.8) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .section-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin: 0 0 30px 0;
+            letter-spacing: -1.5px;
+        }
+
+        .about-desc {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-item h3 {
+            font-size: 2.5rem;
+            color: var(--highlight);
+            margin: 0 0 10px 0;
+            font-weight: 800;
+        }
+
+        .stat-item p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 900px) {
+            .about-container {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+            .section-title {
+                font-size: 2.8rem;
+            }
+        }
+
+        /* Menu Section */
+        .menu-section {
+            position: relative;
+            padding: 120px 6%;
+            background: linear-gradient(to bottom, var(--bg-color) 0%, #110e0c 100%);
+            z-index: 10;
+        }
+
+        .menu-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .menu-desc {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .menu-item {
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 1px;
+            overflow: hidden;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,193,7,0.3) 0%, rgba(255,82,0,0.1) 100%);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .menu-item:hover::before {
+            opacity: 1;
+        }
+
+        .menu-item-img-wrapper {
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            border-radius: 15px 15px 0 0;
+            position: relative;
+        }
+
+        .menu-item-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.5s ease;
+        }
+
+        .menu-item:hover .menu-item-img {
+            transform: scale(1.08); /* slight zoom on hover */
+        }
+
+        .menu-item-img-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 60%;
+            background: linear-gradient(to top, #0f0d0c, transparent);
+            pointer-events: none;
+        }
+
+        .menu-item-content {
+            background: #0f0d0c;
+            padding: 10px 40px 40px;
+            border-radius: 0 0 15px 15px; /* rounded at bottom */
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-top: none;
+        }
+
+        .menu-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            padding-bottom: 16px;
+        }
+
+        .menu-item-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            color: #fff;
+        }
+
+        .price {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--highlight);
+        }
+
+        .menu-item-content p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 1rem;
+            flex-grow: 1;
+        }
+
+        .order-btn {
+            background: transparent;
+            color: var(--highlight);
+            border: 1px solid var(--highlight);
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .order-btn:hover {
+            background: var(--highlight);
+            color: #000;
+            box-shadow: 0 5px 20px rgba(255, 193, 7, 0.4);
+        }
+
+        @media (max-width: 900px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Contact Section */
+        .contact-section {
+            position: relative;
+            padding: 120px 6% 0;
+            background-color: #050505;
+            z-index: 10;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .contact-container {
+            max-width: 1200px;
+            margin: 0 auto 100px;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 80px;
+        }
+
+        .contact-info .section-title {
+            margin-bottom: 24px;
+        }
+
+        .contact-desc {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+
+        .info-group {
+            margin-bottom: 30px;
+            padding-left: 20px;
+            border-left: 2px solid rgba(255,193,7,0.2);
+        }
+
+        .info-group h4 {
+            font-size: 1.2rem;
+            color: #fff;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+
+        .info-group p {
+            margin: 0;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .highlight-text {
+            color: var(--highlight) !important;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .contact-form {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 50px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .contact-form h3 {
+            font-size: 1.8rem;
+            margin: 0 0 30px 0;
+            color: #fff;
+            font-weight: 800;
+        }
+
+        .contact-form form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            outline: none;
+            border-color: var(--highlight);
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 15px rgba(255,193,7,0.1);
+        }
+
+        .contact-form textarea {
+            resize: vertical;
+        }
+
+        .submit-btn {
+            margin-top: 10px;
+            width: 100%;
+            justify-content: center;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+            .contact-container {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+            .contact-form {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Underlay Glow backing up the screen-mode Canvas -->
+    <div class="background-glow"></div>
+
+    <header>
+        <a href="#inicio" class="logo" style="color: inherit; text-decoration: none;">O HAMBÚRGUER</a>
+        <nav>
+            <a href="#inicio">Início</a>
+            <a href="#sobre">Sobre nós</a>
+            <a href="#cardapio">Cardápio</a>
+            <a href="#contato">Contato</a>
+        </nav>
+        <div class="header-right">
+            <button class="icon-btn" aria-label="Buscar">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                </svg>
+            </button>
+            <button class="icon-btn" aria-label="Carrinho">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0 0 20 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
+                </svg>
+            </button>
+            <button class="signup-btn">Cadastrar</button>
+        </div>
+    </header>
+
+    <main id="inicio" class="hero">
+        <!-- Cinematic Full Background Video Layer -->
+        <div class="hero-bg">
+            <div class="canvas-container" id="canvasContainer">
+                <canvas id="burgerCanvas"></canvas>
+            </div>
+            <div class="overlay-blur"></div>
+            <div class="overlay-gradient"></div>
+            <div class="overlay-vignette"></div>
+        </div>
+
+        <!-- Foreground Content Layer -->
+        <div class="hero-content">
+            <div class="badge">Acessível e Muito Saboroso</div>
+            <h1 class="hero-title">Sinta a <br /><span class="highlight">Explosão</span> de Sabor</h1>
+            <p class="hero-desc">Experimente nosso hambúrguer artesanal premium feito com carne 100% Angus, pão brioche
+                fresquinho e queijo artesanal derretido. Uma verdadeira jornada cinematográfica para o seu paladar.</p>
+            <button class="cta-btn">
+                Pedir Agora
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </button>
+        </div>
+    </main>
+
+    <section id="sobre" class="about-section">
+        <div class="about-container">
+            <div class="about-image-wrapper">
+                <div class="about-image-glow"></div>
+                <img src="./imagens/Video Project 5_024.jpg" alt="Hambúrguer Premium" class="about-image">
+            </div>
+            <div class="about-content">
+                <div class="badge">Nossa História</div>
+                <h2 class="section-title">Arte & Paixão em cada <span class="highlight">Detalhe</span></h2>
+                <p class="about-desc">
+                    Nascemos da obsessão por criar o hambúrguer perfeito. Nossa jornada começou com uma simples 
+                    pergunta: como elevar o clássico a uma experiência cinematográfica?
+                </p>
+                <p class="about-desc">
+                    Selecionamos os melhores cortes 100% Angus, desenvolvemos um blend exclusivo e assamos 
+                    cada pão brioche com maestria. Não fazemos apenas lanches; escrevemos um roteiro de 
+                    sabor onde cada mordida é o clímax.
+                </p>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <h3>100%</h3>
+                        <p>Angus Certificado</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>12h</h3>
+                        <p>Blend Descansado</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cardapio" class="menu-section">
+        <div class="menu-container">
+            <div class="menu-header">
+                <div class="badge">O Elenco Principal</div>
+                <h2 class="section-title">Nosso <span class="highlight">Cardápio</span></h2>
+                <p class="menu-desc">As estrelas de nossa produção, preparadas para brilhar no seu paladar. Ingredientes de alta qualidade, 100% Angus.</p>
+            </div>
+            
+            <div class="menu-grid">
+                <!-- Item 1 -->
+                <div class="menu-item">
+                    <div class="menu-item-img-wrapper">
+                        <img src="./imagens/Video Project 5_010.jpg" alt="O Corte do Diretor" class="menu-item-img">
+                    </div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-header">
+                            <h3>O Corte do Diretor</h3>
+                            <span class="price">R$ 45</span>
+                        </div>
+                        <p>O clássico intocável. Pão brioche selado na manteiga, 160g de blend Angus, queijo cheddar inglês derretido, cebola caramelizada e maionese defumada.</p>
+                        <button class="order-btn">Adicionar</button>
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="menu-item">
+                    <div class="menu-item-img-wrapper">
+                        <img src="./imagens/Video Project 5_035.jpg" alt="Sessão Dupla" class="menu-item-img">
+                    </div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-header">
+                            <h3>Sessão Dupla</h3>
+                            <span class="price">R$ 58</span>
+                        </div>
+                        <p>Dose dupla de sabor. Dois hambúrgueres de 160g prensados na chapa com crosta perfeita, duplo queijo prato, bacon artesanal em tiras crocantes e molho secreto.</p>
+                        <button class="order-btn">Adicionar</button>
+                    </div>
+                </div>
+
+                <!-- Item 3 -->
+                <div class="menu-item">
+                    <div class="menu-item-img-wrapper">
+                        <img src="./imagens/Video Project 5_055.jpg" alt="Frango de Cinema" class="menu-item-img">
+                    </div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-header">
+                            <h3>Frango de Cinema</h3>
+                            <span class="price">R$ 42</span>
+                        </div>
+                        <p>Sobrecoxa de frango empanada com especiarias orientais, crocante por fora e suculenta por dentro. Acompanha alface americana e maionese verde.</p>
+                        <button class="order-btn">Adicionar</button>
+                    </div>
+                </div>
+
+                <!-- Item 4 -->
+                <div class="menu-item">
+                    <div class="menu-item-img-wrapper">
+                        <img src="./imagens/Video Project 5_075.jpg" alt="O Campeão de Bilheteria" class="menu-item-img">
+                    </div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-header">
+                            <h3>O Campeão de Bilheteria</h3>
+                            <span class="price">R$ 65</span>
+                        </div>
+                        <p>A superprodução da casa. Hambúrguer de 200g, fondue de queijo gruyère, cogumelos salteados no shoyu e alho negro, pão australiano artesanal.</p>
+                        <button class="order-btn">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contato" class="contact-section">
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="badge">Fale Conosco</div>
+                <h2 class="section-title">Nossa <span class="highlight">Localização</span></h2>
+                <p class="contact-desc">Venha viver essa experiência cinematográfica ou direcione suas dúvidas, eventos e parcerias para nossa equipe.</p>
+                
+                <div class="info-group">
+                    <h4>Endereço</h4>
+                    <p>Av. das Estrelas, 1024 - Centro<br>São Paulo, SP - 01000-000</p>
+                </div>
+                
+                <div class="info-group">
+                    <h4>Horário de Funcionamento</h4>
+                    <p>Ter a Qui: 18h às 23h<br>Sex a Dom: 18h às 01h</p>
+                </div>
+                
+                <div class="info-group">
+                    <h4>Reservas e Delivery</h4>
+                    <p class="highlight-text">+55 11 99999-0000<br>contato@ohamburguer.com</p>
+                </div>
+            </div>
+            
+            <div class="contact-form">
+                <h3>Envie uma Mensagem</h3>
+                <form action="#" method="POST" onsubmit="event.preventDefault(); alert('Roteiro recebido!');">
+                    <input type="text" placeholder="Seu Nome Completo" required>
+                    <input type="email" placeholder="Seu E-mail" required>
+                    <textarea placeholder="Como podemos ajudar?" rows="5" required></textarea>
+                    <button type="submit" class="cta-btn submit-btn">
+                        Enviar Roteiro
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 O Hambúrguer. Todos os direitos reservados. Dirigido com paixão.</p>
+        </div>
+    </section>
+
+    <script>
+        const canvas = document.getElementById('burgerCanvas');
+        const context = canvas.getContext('2d', { alpha: false });
+
+        // Total frames from 000 to 038
+        const frameCount = 39;
+        const frames = [];
+        let loadedCount = 0;
+
+        // Parallax logic
+        const container = document.getElementById('canvasContainer');
+        let targetX = 0;
+        let targetY = 0;
+        let currentX = 0;
+        let currentY = 0;
+
+        // Load all frames
+        for (let i = 0; i < frameCount; i++) {
+            const img = new Image();
+            const paddedIndex = i.toString().padStart(3, '0');
+            img.src = `./imagens/Video Project 5_${paddedIndex}.jpg`;
+
+            img.onload = () => {
+                loadedCount++;
+                // Initialize canvas sizing with the first loaded image immediately
+                if (loadedCount === 1) {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                }
+            };
+
+            frames.push(img);
+        }
+
+        let currentFrame = 0;
+        let lastRenderTime = 0;
+        const fps = 24;
+        const fpsInterval = 1000 / fps;
+
+        function render(time) {
+            requestAnimationFrame(render);
+
+            if (!lastRenderTime) lastRenderTime = time;
+            const deltaTime = time - lastRenderTime;
+
+            // Optimization: Lock to exact FPS
+            if (deltaTime >= fpsInterval) {
+                lastRenderTime = time - (deltaTime % fpsInterval);
+
+                if (frames[currentFrame] && frames[currentFrame].complete && frames[currentFrame].naturalWidth > 0) {
+                    if (canvas.width !== frames[currentFrame].naturalWidth) {
+                        canvas.width = frames[currentFrame].naturalWidth;
+                        canvas.height = frames[currentFrame].naturalHeight;
+                    }
+                    context.drawImage(frames[currentFrame], 0, 0, canvas.width, canvas.height);
+                }
+
+                // Loop sequence from 000 to 038
+                currentFrame = (currentFrame + 1) % frameCount;
+            }
+
+            // Compute highly smooth cinematic parallax
+            currentX += (targetX - currentX) * 0.05;
+            currentY += (targetY - currentY) * 0.05;
+            container.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        }
+
+        // Start animation loop immediately
+        requestAnimationFrame(render);
+
+        // Subtle Mouse Parallax (Apple style depth effect)
+        document.addEventListener('mousemove', (e) => {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+
+            // Normalized coordinates (-1 to 1)
+            const normalizedX = (e.clientX / w) * 2 - 1;
+            const normalizedY = (e.clientY / h) * 2 - 1;
+
+            // We displace slightly inverted to mouse position for 'behind the glass' feel
+            targetX = -normalizedX * 12;
+            targetY = -normalizedY * 12;
+        });
+
+    </script>
+</body>
+
+</html>
